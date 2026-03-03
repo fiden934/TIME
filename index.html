@@ -7,470 +7,283 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;1,300&family=Playfair+Display:ital@1&display=swap" rel="stylesheet" />
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
     :root {
-      --bg: #0d0d0f;
-      --surface: #13131a;
-      --dot-gone: #2a2a35;
-      --dot-live: #e8c97e;
-      --dot-grad: #7eb8e8;
-      --text: #c8c0b0;
-      --dim: #4a4a5a;
-      --accent: #e8c97e;
-      --accent2: #7eb8e8;
+      --bg: #0d0d0f; --dot-gone: #2a2a35; --text: #c8c0b0; --dim: #4a4a5a;
+      --accent: #e8c97e; --accent2: #7eb8e8; --accent3: #b07ee8;
     }
-
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      font-size: 14px;
-      overflow-x: hidden;
-    }
-
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      padding: 60px 20px 80px;
-      gap: 60px;
-      min-height: 100vh;
-    }
-
-    /* noise overlay */
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; font-size: 14px; overflow-x: hidden; }
+    body { display: flex; flex-direction: column; align-items: center; padding: 60px 20px 80px; gap: 60px; min-height: 100vh; }
     body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
+      content: ''; position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      background-size: 200px 200px;
-      pointer-events: none;
-      z-index: 0;
-      opacity: 0.6;
+      background-size: 200px 200px; pointer-events: none; z-index: 0; opacity: 0.6;
     }
-
     .container { position: relative; z-index: 1; width: 100%; max-width: 760px; }
-
-    /* ── HERO CLOCK ── */
-    .hero {
-      text-align: center;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      animation: fadeUp 1s ease both;
-    }
-
-    .tagline {
-      font-size: 11px;
-      letter-spacing: 0.25em;
-      color: var(--dim);
-      text-transform: uppercase;
-    }
-
-    .clock {
-      font-size: clamp(44px, 10vw, 80px);
-      font-family: 'DM Mono', monospace;
-      font-weight: 300;
-      color: var(--accent);
-      letter-spacing: -0.02em;
-      line-height: 1;
-      text-shadow: 0 0 60px rgba(232,201,126,0.2);
-    }
-
-    .date-label {
-      font-size: 12px;
-      color: var(--dim);
-      font-style: italic;
-      font-family: 'Playfair Display', serif;
-      margin-top: 4px;
-    }
-
-    /* ── YEAR SECTION ── */
-    .section {
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-      animation: fadeUp 1s ease both;
-    }
-
+    .hero { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 8px; animation: fadeUp 1s ease both; }
+    .tagline { font-size: 11px; letter-spacing: 0.25em; color: var(--dim); text-transform: uppercase; }
+    .clock { font-size: clamp(44px, 10vw, 80px); font-weight: 300; color: var(--accent); letter-spacing: -0.02em; line-height: 1; text-shadow: 0 0 60px rgba(232,201,126,0.2); }
+    .date-label { font-size: 12px; color: var(--dim); font-style: italic; font-family: 'Playfair Display', serif; margin-top: 4px; }
+    .section { display: flex; flex-direction: column; gap: 18px; animation: fadeUp 1s ease both; }
     .section:nth-child(2) { animation-delay: 0.15s; }
-    .section:nth-child(3) { animation-delay: 0.3s; }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      border-bottom: 1px solid #1e1e28;
-      padding-bottom: 10px;
-    }
-
-    .section-title {
-      font-size: 11px;
-      letter-spacing: 0.2em;
-      text-transform: uppercase;
-      color: var(--dim);
-    }
-
-    .section-count {
-      font-size: 28px;
-      font-weight: 300;
-      line-height: 1;
-    }
-
-    .section-count span {
-      font-size: 11px;
-      font-weight: 400;
-      color: var(--dim);
-      letter-spacing: 0.1em;
-    }
-
-    .year-count { color: var(--accent); }
-    .grad-count { color: var(--accent2); }
-
-    /* ── DOT GRID ── */
-    .dot-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 5px;
-      line-height: 0;
-    }
-
-    .dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      transition: opacity 0.3s;
-    }
-
-    .dot.gone {
-      background: var(--dot-gone);
-    }
-
-    .dot.today {
-      background: var(--accent);
-      box-shadow: 0 0 8px var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-
-    .dot.remaining-year {
-      background: transparent;
-      border: 1px solid #252530;
-    }
-
-    .dot.grad-gone {
-      background: var(--dot-gone);
-    }
-
-    .dot.grad-today {
-      background: var(--accent2);
-      box-shadow: 0 0 8px var(--accent2);
-      animation: pulse2 2s ease-in-out infinite;
-    }
-
-    .dot.grad-remaining {
-      background: transparent;
-      border: 1px solid #1c2530;
-    }
-
-    .dot.grad-year-marker {
-      background: transparent;
-      border: 1px dashed #2a3540;
-    }
-
-    /* ── STAT ROW ── */
-    .stats {
-      display: flex;
-      gap: 32px;
-      flex-wrap: wrap;
-    }
-
-    .stat {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .stat-val {
-      font-size: 20px;
-      font-weight: 300;
-      color: var(--text);
-    }
-
-    .stat-val.hi { color: var(--accent); }
+    .section:nth-child(3) { animation-delay: 0.30s; }
+    .section:nth-child(4) { animation-delay: 0.45s; }
+    .section-header { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 1px solid #1e1e28; padding-bottom: 10px; }
+    .section-title { font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); }
+    .section-count { font-size: 28px; font-weight: 300; line-height: 1; }
+    .section-count span { font-size: 11px; font-weight: 400; color: var(--dim); letter-spacing: 0.1em; }
+    .dot-grid { display: flex; flex-wrap: wrap; gap: 5px; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; }
+    .dot.gone            { background: var(--dot-gone); }
+    .dot.today           { background: var(--accent);  box-shadow: 0 0 8px var(--accent);  animation: pulse  2s ease-in-out infinite; }
+    .dot.remaining-year  { background: transparent; border: 1px solid #252530; }
+    .dot.grad-gone       { background: var(--dot-gone); }
+    .dot.grad-today      { background: var(--accent2); box-shadow: 0 0 8px var(--accent2); animation: pulse2 2s ease-in-out infinite; }
+    .dot.grad-remaining  { background: transparent; border: 1px solid #1c2530; }
+    .dot.grad-year-marker{ background: transparent; border: 1px dashed #2a3540; }
+    .dot.custom-gone     { background: var(--dot-gone); }
+    .dot.custom-today    { background: var(--accent3); box-shadow: 0 0 8px var(--accent3); animation: pulse3 2s ease-in-out infinite; }
+    .dot.custom-yr-mark  { background: transparent; border: 1px dashed #2a2540; }
+    .stats { display: flex; gap: 32px; flex-wrap: wrap; }
+    .stat { display: flex; flex-direction: column; gap: 2px; }
+    .stat-val { font-size: 20px; font-weight: 300; color: var(--text); }
+    .stat-val.hi  { color: var(--accent); }
     .stat-val.hi2 { color: var(--accent2); }
-
-    .stat-label {
-      font-size: 10px;
-      letter-spacing: 0.15em;
-      text-transform: uppercase;
-      color: var(--dim);
+    .stat-val.hi3 { color: var(--accent3); }
+    .stat-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
+    .legend { display: flex; gap: 20px; flex-wrap: wrap; }
+    .legend-item { display: flex; align-items: center; gap: 7px; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+    .legend-dot { width: 7px; height: 7px; border-radius: 50%; }
+    /* custom date inputs */
+    .date-inputs { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+    .input-group { display: flex; flex-direction: column; gap: 6px; }
+    .input-label { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); }
+    .date-input {
+      background: #13131a; border: 1px solid #252530; color: var(--text);
+      font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 300;
+      padding: 10px 14px; border-radius: 4px; width: 80px; outline: none;
+      transition: border-color 0.2s; -moz-appearance: textfield;
     }
-
-    /* ── QUOTE ── */
-    .quote {
-      text-align: center;
-      padding: 0 20px;
-      animation: fadeUp 1s ease 0.5s both;
+    .date-input::-webkit-outer-spin-button, .date-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+    .date-input:focus { border-color: var(--accent3); }
+    #inputYear { width: 100px; }
+    .go-btn {
+      background: transparent; border: 1px solid var(--accent3); color: var(--accent3);
+      font-family: 'DM Mono', monospace; font-size: 13px; padding: 10px 18px;
+      border-radius: 4px; cursor: pointer; letter-spacing: 0.1em;
+      transition: background 0.2s, color 0.2s;
     }
-
-    .quote p {
-      font-family: 'Playfair Display', serif;
-      font-style: italic;
-      font-size: 15px;
-      color: var(--dim);
-      line-height: 1.7;
-      max-width: 420px;
-      margin: 0 auto;
-    }
-
-    /* ── LEGEND ── */
-    .legend {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 10px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--dim);
-    }
-
-    .legend-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-    }
-
-    /* ── ANIMATIONS ── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes pulse {
-      0%, 100% { box-shadow: 0 0 6px var(--accent); opacity: 1; }
-      50%       { box-shadow: 0 0 14px var(--accent); opacity: 0.7; }
-    }
-
-    @keyframes pulse2 {
-      0%, 100% { box-shadow: 0 0 6px var(--accent2); opacity: 1; }
-      50%       { box-shadow: 0 0 14px var(--accent2); opacity: 0.7; }
-    }
-
-    /* responsive tweaks */
-    @media (max-width: 520px) {
-      .dot { width: 5px; height: 5px; }
-      .dot-grid { gap: 4px; }
-      .stats { gap: 20px; }
-    }
+    .go-btn:hover { background: var(--accent3); color: #0d0d0f; }
+    .dot-note { font-size: 10px; color: var(--dim); letter-spacing: 0.1em; margin-top: -6px; }
+    .quote { text-align: center; padding: 0 20px; animation: fadeUp 1s ease 0.6s both; }
+    .quote p { font-family: 'Playfair Display', serif; font-style: italic; font-size: 15px; color: var(--dim); line-height: 1.7; max-width: 420px; margin: 0 auto; }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes pulse  { 0%,100% { box-shadow: 0 0 6px var(--accent);  opacity:1; } 50% { box-shadow: 0 0 14px var(--accent);  opacity:0.7; } }
+    @keyframes pulse2 { 0%,100% { box-shadow: 0 0 6px var(--accent2); opacity:1; } 50% { box-shadow: 0 0 14px var(--accent2); opacity:0.7; } }
+    @keyframes pulse3 { 0%,100% { box-shadow: 0 0 6px var(--accent3); opacity:1; } 50% { box-shadow: 0 0 14px var(--accent3); opacity:0.7; } }
+    @media (max-width: 520px) { .dot { width: 5px; height: 5px; } .dot-grid { gap: 4px; } .stats { gap: 20px; } }
   </style>
 </head>
 <body>
 
-<!-- HERO -->
 <div class="container hero">
-  <div class="tagline">right now, in 2026</div>
+  <div class="tagline">right now, in <span id='heroYear'></span></div>
   <div class="clock" id="clock">--:--:--</div>
   <div class="date-label" id="dateLabel">loading...</div>
 </div>
 
-<!-- YEAR SECTION -->
-<div class="container section" id="yearSection">
+<div class="container section">
   <div class="section-header">
-    <div class="section-title">days left in 2026</div>
-    <div class="section-count year-count" id="yearCount">— <span>days remaining</span></div>
+    <div class="section-title">days left in <span id='currentYearLabel'></span></div>
+    <div class="section-count" style="color:var(--accent)" id="yearCount">— <span>days remaining</span></div>
   </div>
   <div class="stats" id="yearStats"></div>
   <div class="legend">
-    <div class="legend-item">
-      <div class="legend-dot" style="background: var(--dot-gone)"></div>gone
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background: var(--accent); box-shadow: 0 0 6px var(--accent)"></div>today
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="border: 1px solid #252530; background: transparent"></div>ahead
-    </div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--dot-gone)"></div>gone</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent)"></div>today</div>
+    <div class="legend-item"><div class="legend-dot" style="border:1px solid #252530;background:transparent"></div>ahead</div>
   </div>
   <div class="dot-grid" id="yearDots"></div>
 </div>
 
-<!-- GRAD SECTION -->
-<div class="container section" id="gradSection">
+<div class="container section">
   <div class="section-header">
     <div class="section-title">days until graduation · 2029</div>
-    <div class="section-count grad-count" id="gradCount">— <span>days to go</span></div>
+    <div class="section-count" style="color:var(--accent2)" id="gradCount">— <span>days to go</span></div>
   </div>
   <div class="stats" id="gradStats"></div>
   <div class="legend">
-    <div class="legend-item">
-      <div class="legend-dot" style="background: var(--dot-gone)"></div>since admission
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="background: var(--accent2); box-shadow: 0 0 6px var(--accent2)"></div>today
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="border: 1px dashed #2a3540; background: transparent"></div>a year boundary
-    </div>
-    <div class="legend-item">
-      <div class="legend-dot" style="border: 1px solid #1c2530; background: transparent"></div>ahead
-    </div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--dot-gone)"></div>since admission</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent2);box-shadow:0 0 6px var(--accent2)"></div>today</div>
+    <div class="legend-item"><div class="legend-dot" style="border:1px dashed #2a3540;background:transparent"></div>year boundary</div>
+    <div class="legend-item"><div class="legend-dot" style="border:1px solid #1c2530;background:transparent"></div>ahead</div>
   </div>
   <div class="dot-grid" id="gradDots"></div>
 </div>
 
-<!-- QUOTE -->
+<div class="container section">
+  <div class="section-header">
+    <div class="section-title">time since any date</div>
+    <div class="section-count" id="customCountEl" style="color:var(--dim);font-size:13px;letter-spacing:.05em">enter a date below</div>
+  </div>
+  <div class="date-inputs">
+    <div class="input-group">
+      <label class="input-label">day</label>
+      <input class="date-input" id="inputDay" type="number" min="1" max="31"  />
+    </div>
+    <div class="input-group">
+      <label class="input-label">month</label>
+      <input class="date-input" id="inputMonth" type="number" min="1" max="12"  />
+    </div>
+    <div class="input-group">
+      <label class="input-label">year</label>
+      <input class="date-input" id="inputYear" type="number" min="1900" max="2100"  />
+    </div>
+    <div class="input-group">
+      <label class="input-label">&nbsp;</label>
+      <button class="go-btn" onclick="renderCustom()">→ go</button>
+    </div>
+  </div>
+  <div id="customResult" style="display:none;flex-direction:column;gap:18px;">
+    <div class="stats" id="customStats"></div>
+    <div class="legend">
+      <div class="legend-item"><div class="legend-dot" style="background:var(--dot-gone)"></div>gone</div>
+      <div class="legend-item"><div class="legend-dot" style="background:var(--accent3);box-shadow:0 0 6px var(--accent3)"></div>today</div>
+      <div class="legend-item"><div class="legend-dot" style="border:1px dashed #2a2540;background:transparent"></div>year boundary</div>
+    </div>
+    <div class="dot-grid" id="customDots"></div>
+    <div class="dot-note" id="customNote"></div>
+  </div>
+</div>
+
 <div class="container quote">
   <p>the days feel long, but the years are short — you're right in the middle of something.</p>
 </div>
 
 <script>
-  // ── helpers ──────────────────────────────────────────────
-  const pad = n => String(n).padStart(2, '0');
+  const pad = n => String(n).padStart(2,'0');
 
   function dayOfYear(d) {
-    const start = new Date(d.getFullYear(), 0, 0);
-    const diff = d - start + (start.getTimezoneOffset() - d.getTimezoneOffset()) * 60000;
-    return Math.floor(diff / 86400000);
+    const s = new Date(d.getFullYear(), 0, 0);
+    return Math.floor((d - s + (s.getTimezoneOffset() - d.getTimezoneOffset()) * 60000) / 86400000);
   }
 
-  function daysInYear(year) {
-    return ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) ? 366 : 365;
+  function daysInYear(y) {
+    return ((y%4===0&&y%100!==0)||y%400===0) ? 366 : 365;
   }
 
   function dateDiffDays(a, b) {
     return Math.floor((b - a) / 86400000);
   }
 
-  // ── constants ─────────────────────────────────────────────
-  const ADMISSION_DATE = new Date(2025, 7, 1);   // Aug 1 2025 (approx)
-  const GRAD_DATE      = new Date(2029, 5, 1);   // June 1 2029
-
-  // ── clock ────────────────────────────────────────────────
-  const clockEl   = document.getElementById('clock');
-  const labelEl   = document.getElementById('dateLabel');
+  const ADMISSION_DATE = new Date(2025, 7, 1);
+  const GRAD_DATE      = new Date(2029, 5, 1);
 
   function updateClock() {
     const now = new Date();
-    clockEl.textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
-    labelEl.textContent = now.toLocaleDateString('en-IN', {
-      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
-    });
+    document.getElementById('clock').textContent = `${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    document.getElementById('dateLabel').textContent = now.toLocaleDateString('en-IN', { weekday:'long', day:'numeric', month:'long', year:'numeric' });
   }
 
-  // ── year dots ─────────────────────────────────────────────
   function renderYear() {
-    const now  = new Date();
-    const doy  = dayOfYear(now);         // 1-indexed current day
-    const total = daysInYear(2026);       // 365
-    const gone  = doy - 1;
-    const ahead = total - doy;
-
-    document.getElementById('yearCount').innerHTML =
-      `${ahead} <span>days remaining</span>`;
-
-    const pct = ((doy / total) * 100).toFixed(1);
+    const now = new Date(); const doy = dayOfYear(now); const currentYear = now.getFullYear(); const total = daysInYear(currentYear);
+    const gone = doy - 1; const ahead = total - doy;
+    document.getElementById('yearCount').innerHTML = `${ahead} <span>days remaining</span>`;
     document.getElementById('yearStats').innerHTML = `
-      <div class="stat">
-        <div class="stat-val hi">${ahead}</div>
-        <div class="stat-label">days left</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">${gone}</div>
-        <div class="stat-label">days passed</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">${pct}%</div>
-        <div class="stat-label">of 2026 gone</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val hi">${Math.ceil(ahead / 7)}</div>
-        <div class="stat-label">weeks ahead</div>
-      </div>
-    `;
-
-    const grid = document.getElementById('yearDots');
-    grid.innerHTML = '';
+      <div class="stat"><div class="stat-val hi">${ahead}</div><div class="stat-label">days left</div></div>
+      <div class="stat"><div class="stat-val">${gone}</div><div class="stat-label">days passed</div></div>
+      <div class="stat"><div class="stat-val">${((doy/total)*100).toFixed(1)}%</div><div class="stat-label">of 2026 gone</div></div>
+      <div class="stat"><div class="stat-val hi">${Math.ceil(ahead/7)}</div><div class="stat-label">weeks ahead</div></div>`;
+    const grid = document.getElementById('yearDots'); grid.innerHTML = '';
     for (let i = 1; i <= total; i++) {
       const d = document.createElement('div');
       d.className = 'dot ' + (i < doy ? 'gone' : i === doy ? 'today' : 'remaining-year');
-      d.title = dayLabel(2026, i);
       grid.appendChild(d);
     }
   }
 
-  // ── grad dots ─────────────────────────────────────────────
   function renderGrad() {
-    const now    = new Date();
-    const total  = dateDiffDays(ADMISSION_DATE, GRAD_DATE);
+    const now = new Date();
+    const total = dateDiffDays(ADMISSION_DATE, GRAD_DATE);
     const passed = dateDiffDays(ADMISSION_DATE, now);
-    const left   = dateDiffDays(now, GRAD_DATE);
-
-    document.getElementById('gradCount').innerHTML =
-      `${left} <span>days to go</span>`;
-
-    const yrs  = (left / 365).toFixed(1);
-    const mons = Math.floor(left / 30.44);
+    const left = dateDiffDays(now, GRAD_DATE);
+    document.getElementById('gradCount').innerHTML = `${left} <span>days to go</span>`;
     document.getElementById('gradStats').innerHTML = `
-      <div class="stat">
-        <div class="stat-val hi2">${left}</div>
-        <div class="stat-label">days to grad</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">${mons}</div>
-        <div class="stat-label">months</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">${yrs}</div>
-        <div class="stat-label">years ahead</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val">${passed}</div>
-        <div class="stat-label">days in so far</div>
-      </div>
-    `;
-
-    // year-boundary positions: days into the total span for Jan 1 of each year
-    const yearBoundaries = new Set();
-    [2026, 2027, 2028, 2029].forEach(yr => {
-      const d = dateDiffDays(ADMISSION_DATE, new Date(yr, 0, 1));
-      if (d > 0 && d < total) yearBoundaries.add(d);
+      <div class="stat"><div class="stat-val hi2">${left}</div><div class="stat-label">days to grad</div></div>
+      <div class="stat"><div class="stat-val">${Math.floor(left/30.44)}</div><div class="stat-label">months</div></div>
+      <div class="stat"><div class="stat-val">${(left/365).toFixed(1)}</div><div class="stat-label">years ahead</div></div>
+      <div class="stat"><div class="stat-val">${passed}</div><div class="stat-label">days in so far</div></div>`;
+    const yearBounds = new Set();
+    [2026,2027,2028,2029].forEach(yr => {
+      const pos = dateDiffDays(ADMISSION_DATE, new Date(yr, 0, 1));
+      if (pos > 0 && pos < total) yearBounds.add(pos);
     });
-
-    const grid = document.getElementById('gradDots');
-    grid.innerHTML = '';
+    const grid = document.getElementById('gradDots'); grid.innerHTML = '';
     for (let i = 0; i < total; i++) {
       const d = document.createElement('div');
-      if (i < passed - 1) {
-        d.className = 'dot grad-gone';
-      } else if (i === passed - 1) {
-        d.className = 'dot grad-today';
-      } else if (yearBoundaries.has(i)) {
-        d.className = 'dot grad-year-marker';
-      } else {
-        d.className = 'dot grad-remaining';
-      }
+      if      (i < passed - 1)    d.className = 'dot grad-gone';
+      else if (i === passed - 1)  d.className = 'dot grad-today';
+      else if (yearBounds.has(i)) d.className = 'dot grad-year-marker';
+      else                         d.className = 'dot grad-remaining';
       grid.appendChild(d);
     }
   }
 
-  function dayLabel(year, doy) {
-    const d = new Date(year, 0, doy);
-    return d.toLocaleDateString('en-IN', { month: 'short', day: 'numeric' });
+  function renderCustom() {
+    const d = parseInt(document.getElementById('inputDay').value);
+    const m = parseInt(document.getElementById('inputMonth').value);
+    const y = parseInt(document.getElementById('inputYear').value);
+    const countEl = document.getElementById('customCountEl');
+
+    if (!d||!m||!y||m<1||m>12||d<1||d>31||y<1900||y>2100) {
+      countEl.textContent = 'invalid date :('; countEl.style.color = '#e87e7e'; return;
+    }
+    const target = new Date(y, m-1, d);
+    const now    = new Date();
+    if (target > now) {
+      countEl.textContent = 'that date is in the future'; countEl.style.color = '#e87e7e';
+      document.getElementById('customResult').style.display = 'none'; return;
+    }
+
+    const totalDays = dateDiffDays(target, now) + 1;
+    countEl.innerHTML = `${totalDays.toLocaleString()} <span style="font-size:11px;color:var(--dim);letter-spacing:.1em">days since then</span>`;
+    countEl.style.color = 'var(--accent3)'; countEl.style.fontSize = '28px';
+
+    document.getElementById('customStats').innerHTML = `
+      <div class="stat"><div class="stat-val hi3">${totalDays.toLocaleString()}</div><div class="stat-label">total days</div></div>
+      <div class="stat"><div class="stat-val">${(totalDays/365.25).toFixed(2)}</div><div class="stat-label">years</div></div>
+      <div class="stat"><div class="stat-val">${Math.floor(totalDays/30.44)}</div><div class="stat-label">months</div></div>
+      <div class="stat"><div class="stat-val">${Math.floor(totalDays/7).toLocaleString()}</div><div class="stat-label">weeks</div></div>
+      <div class="stat"><div class="stat-val">${(totalDays*24).toLocaleString()}</div><div class="stat-label">hours</div></div>`;
+
+    const MAX = 3650;
+    const step = Math.ceil(totalDays / Math.min(totalDays, MAX));
+    const dotCount = Math.ceil(totalDays / step);
+
+    const yearBounds = new Set();
+    for (let yr = y+1; yr <= now.getFullYear(); yr++) {
+      const pos = Math.floor(dateDiffDays(target, new Date(yr,0,1)) / step);
+      if (pos > 0 && pos < dotCount) yearBounds.add(pos);
+    }
+
+    const grid = document.getElementById('customDots'); grid.innerHTML = '';
+    for (let i = 0; i < dotCount; i++) {
+      const el = document.createElement('div');
+      if      (i === dotCount - 1) el.className = 'dot custom-today';
+      else if (yearBounds.has(i))  el.className = 'dot custom-yr-mark';
+      else                          el.className = 'dot custom-gone';
+      grid.appendChild(el);
+    }
+
+    document.getElementById('customNote').textContent =
+      step > 1 ? `1 dot ≈ ${step} days  ·  dashed = year boundary` : `1 dot = 1 day  ·  dashed = year boundary`;
+    document.getElementById('customResult').style.display = 'flex';
   }
 
-  // ── init ──────────────────────────────────────────────────
-  updateClock();
-  renderYear();
-  renderGrad();
+  ['inputDay','inputMonth','inputYear'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => { if (e.key === 'Enter') renderCustom(); });
+  });
+
+  updateClock(); renderYear(); document.getElementById('currentYearLabel').textContent = new Date().getFullYear(); document.getElementById('heroYear').textContent = new Date().getFullYear(); renderGrad();
   setInterval(updateClock, 1000);
 </script>
 </body>
